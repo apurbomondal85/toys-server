@@ -27,62 +27,86 @@ async function run() {
 
         const toysCollection = client.db("toysDB").collection("toys");
 
-        const indexKeys = {name: 1};
-        const indexOptions = {name: "name"};
+        const indexKeys = { name: 1 };
+        const indexOptions = { name: "name" };
 
         const result = await toysCollection.createIndex(indexKeys, indexOptions)
 
 
 
-        app.get('/toys', async(req, res) =>{
+        app.get('/toys', async (req, res) => {
             const result = await toysCollection.find().toArray();
             res.send(result);
         })
 
-        app.get('/toys/:id', async(req, res) => {
+        app.get('/toys/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await toysCollection.findOne(query);
             res.send(result)
         })
 
-        app.get('/toys/category/:category', async(req, res) => {
+        app.get('/toys/category/:category', async (req, res) => {
             const category = req.params.category;
             if (category === "All") {
                 return;
             }
-            const query = {"category": category}
+            const query = { "category": category }
             const result = await toysCollection.find(query).toArray();
             res.send(result)
         })
 
-        app.get('/limitToys', async(req, res)=>{
+        app.get('/limitToys', async (req, res) => {
             const limit = parseInt(req.query.limit);
             const result = await toysCollection.find().limit(limit).toArray();
             res.send(result)
         })
 
-        app.get('/searchByName/:name', async(req, res) => {
+        app.get('/searchByName/:name', async (req, res) => {
             const searchValue = req.params.name;
             if (!searchValue) {
                 return res.status(400).json({ error: 'Search term is required' });
-              }
+            }
             const result = await toysCollection.find({ name: { $regex: searchValue, $options: "i" } }).toArray();
             res.send(result)
         })
 
-        app.get('/username', async(req, res) => {
+        app.get('/username', async (req, res) => {
             const username = req.query.email;
-            const query = {"email": username};
+            const query = { "email": username };
             const result = await toysCollection.find(query).toArray();
             res.send(result)
         })
 
-        app.post('/toys', async(req, res) => {
+        app.post('/toys', async (req, res) => {
             const toy = req.body;
             const result = await toysCollection.insertOne(toy);
             res.send(result)
         })
+
+        app.put('/toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const newToyValue = req.body;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateTay = {
+                $set: {
+                    price: newToyValue.price,
+                    quantity: newToyValue.quantity,
+                    description: newToyValue.description
+                }
+            }
+            const result = await toysCollection.updateOne(query, updateTay, options)
+            res.send(result)
+        })
+
+        app.delete('/toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await toysCollection.deleteOne(query);
+            res.send(result)
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
