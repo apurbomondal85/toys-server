@@ -88,17 +88,17 @@ async function run() {
             res.send(result)
         })
 
-        // update toy property using id
+        // update toy property
         app.put('/toys/:id', async (req, res) => {
             const id = req.params.id;
-            const newToyValue = req.body;
+            const updateToyValue = req.body;
             const query = { _id: new ObjectId(id) };
             const options = { upsert: true };
             const updateTay = {
                 $set: {
-                    price: newToyValue.price,
-                    quantity: newToyValue.quantity,
-                    description: newToyValue.description
+                    price: updateToyValue.price,
+                    quantity: updateToyValue.quantity,
+                    description: updateToyValue.description
                 }
             }
             const result = await toysCollection.updateOne(query, updateTay, options)
