@@ -33,12 +33,13 @@ async function run() {
         const result = await toysCollection.createIndex(indexKeys, indexOptions)
 
 
-
+        // get all toys products
         app.get('/toys', async (req, res) => {
             const result = await toysCollection.find().toArray();
             res.send(result);
         })
 
+        // single toy get by id
         app.get('/toys/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -46,22 +47,23 @@ async function run() {
             res.send(result)
         })
 
+        // toys get by category
         app.get('/toys/category/:category', async (req, res) => {
             const category = req.params.category;
-            if (category === "All") {
-                return;
-            }
+            console.log(category);
             const query = { "category": category }
             const result = await toysCollection.find(query).toArray();
             res.send(result)
         })
 
+        // toys get by limited
         app.get('/limitToys', async (req, res) => {
             const limit = parseInt(req.query.limit);
             const result = await toysCollection.find().limit(limit).toArray();
             res.send(result)
         })
 
+        // toys get by search name
         app.get('/searchByName/:name', async (req, res) => {
             const searchValue = req.params.name;
             if (!searchValue) {
@@ -71,6 +73,7 @@ async function run() {
             res.send(result)
         })
 
+        // toys get by only username
         app.get('/username', async (req, res) => {
             const username = req.query.email;
             const query = { "email": username };
@@ -78,12 +81,14 @@ async function run() {
             res.send(result)
         })
 
+        // post toy in mongodb form client side
         app.post('/toys', async (req, res) => {
             const toy = req.body;
             const result = await toysCollection.insertOne(toy);
             res.send(result)
         })
 
+        // update toy property using id
         app.put('/toys/:id', async (req, res) => {
             const id = req.params.id;
             const newToyValue = req.body;
@@ -99,7 +104,7 @@ async function run() {
             const result = await toysCollection.updateOne(query, updateTay, options)
             res.send(result)
         })
-
+        // single toy deleted
         app.delete('/toys/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
