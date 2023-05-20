@@ -80,6 +80,15 @@ async function run() {
             res.send(result)
         })
 
+        // Shorted by price
+        app.get('/sortPrice', async(req, res) =>{
+            const sortOrder = req.query.sortOrder == 'descending' ? -1 : 1;
+            const email = req.query.email;
+            const query = {"price": sortOrder}
+            const result = await toysCollection.find({email}).sort(query).toArray();
+            res.send(result)
+        })
+
         // post toy in mongodb form client side
         app.post('/toys', async (req, res) => {
             const toy = req.body;
