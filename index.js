@@ -63,7 +63,7 @@ async function run() {
             res.send(result)
         })
 
-        // toys get by search name
+        // toys get by search
         app.get('/searchByName/:name', async (req, res) => {
             const searchValue = req.params.name;
             if (!searchValue) {
