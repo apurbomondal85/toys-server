@@ -9,7 +9,9 @@ app.use(cors());
 app.use(express.json());
 
 
-const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASSWORD_DB}@cluster0.unnbbpt.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASSWORD_DB}@cluster0.unnbbpt.mongodb.net/?retryWrites=true&w=majority`;
+
+const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASSWORD_DB}@cluster0.ph7tdpg.mongodb.net/?retryWrites=true&w=majority`;
 
 
 const client = new MongoClient(uri, {
@@ -22,7 +24,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
+        client.connect();
 
         const toysCollection = client.db("toysDB").collection("toys");
 
@@ -32,9 +34,18 @@ async function run() {
         const result = await toysCollection.createIndex(indexKeys, indexOptions)
 
 
+        // total toys 
+        app.get('/totalProducts', async(req, res)=>{
+            const result = await toysCollection.estimatedDocumentCount();
+            res.send({totalProducts : result});
+        })
+
         // get all toys products
-        app.get('/toys', async (req, res) => {
-            const result = await toysCollection.find().toArray();
+        app.get('/AllToys', async (req, res) => {
+            const limit = parseInt(req.query.limit) || 6;
+            const page = parseInt(req.query.page) || 0;
+            const skip = page * limit;
+            const result = await toysCollection.find().skip(skip).limit(limit).toArray();
             res.send(result);
         })
 
@@ -47,9 +58,8 @@ async function run() {
         })
 
         // toys get by category
-        app.get('/toys/category/:category', async (req, res) => {
+        app.get('/category/:category', async (req, res) => {
             const category = req.params.category;
-            console.log(category);
             const query = { "category": category }
             const result = await toysCollection.find(query).toArray();
             res.send(result)
@@ -119,11 +129,6 @@ async function run() {
             const result = await toysCollection.deleteOne(query);
             res.send(result)
         })
-
-
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         
     }
