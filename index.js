@@ -24,15 +24,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        client.connect();
-
         const toysCollection = client.db("toysDB").collection("toys");
-
-        const indexKeys = { name: 1 };
-        const indexOptions = { name: "name" };
-
-        const result = await toysCollection.createIndex(indexKeys, indexOptions)
-
 
         // total toys 
         app.get('/totalProducts', async(req, res)=>{
